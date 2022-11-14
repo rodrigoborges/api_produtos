@@ -56,9 +56,13 @@ class CreateProductsCommand extends Command
         if ($idProduto) {
             $this->info(__('messages.products.import.start', ['id_produto' => $idProduto]));
 
-            $this->criarProduto($produtos);
+            if ($produtos) {
+                $this->criarProduto($produtos);
+                $this->info(__('messages.products.import.success'));
+            } else {
+                $this->info(__('messages.products.import.empty', ['id_produto' => $idProduto]));
+            }
 
-            $this->info(__('messages.products.import.success'));
         } else {
             $totalProduto = sizeof($produtos);
 
