@@ -6,6 +6,7 @@ use Exception;
 use App\Models\Produto;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
 use App\Http\Requests\ProdutoCreateRequest;
 use App\Http\Requests\ProdutoUpdateRequest;
@@ -88,8 +89,7 @@ class CreateProductsCommand extends Command
 
         if ($validator->fails()) {
              $this->registrosProcessadosComErro++;
-            // $validator->errors()
-             //todo: lançar erro em arquivo
+             Storage::disk('local')->put('products.imports.txt', "Produto ID: {$produto['id']} - " . $validator->errors());
         } else {
             $this->registrosProcessadosComSucesso++;
             Produto::updateOrCreate(['id' => $data['id']], $data);
