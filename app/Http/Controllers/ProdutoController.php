@@ -4,37 +4,33 @@ namespace App\Http\Controllers;
 
 use App\Models\Produto;
 use Illuminate\Http\Request;
-use App\Http\Requests\ProdutoRequest;
+use Illuminate\Http\Response;
 use App\Http\Resources\ProdutoResource;
+use App\Http\Requests\ProdutoCreateRequest;
+use App\Http\Requests\ProdutoUpdateRequest;
 
 class ProdutoController extends Controller
 {
+
     public function index(Request $request)
     {
         return ProdutoResource::collection(Produto::listar([
             'search' => $request->search,
             'category' => $request->category,
-            'image_url' => $request->image_url,
+            'has_image' => $request->has_image,
             'id' => $request->id
         ]));
     }
 
-    public function store(ProdutoRequest $request)
+    public function store(ProdutoCreateRequest $request)
     {
         $produto = Produto::create($request->all());
 
         if ($produto) {
-            return response()->json([
-                'success' => true,
-                'message' => 'Produto cadatrado com sucesso.',
-                'data' => new ProdutoResource($produto)
-            ]);
+            return new ProdutoResource($produto);
         }
 
-        return response()->json([
-                'sucess' => false,
-                'message' => 'Erro ao cadastrar produto.',
-        ], 404);
+        return response()->json(['message' => __('messages.products.error')], Response::HTTP_BAD_REQUEST);
     }
 
     public function show(Produto $produto)
@@ -42,15 +38,22 @@ class ProdutoController extends Controller
         return new ProdutoResource($produto);
     }
 
-    public function update(ProdutoRequest $request, Produto $produto)
+    public function update(ProdutoUpdateRequest $request, Produto $produto)
     {
         $produto->update($request->all());
 
         return new ProdutoResource($produto);
     }
 
-    public function destroy($id)
+    public function destroy(Produto $produto)
     {
-        return Produto::destroy($id);
+        try {
+            $produto->delete();
+        } catch (\Exception $e) {
+            return response()->json(null, Response::HTTP_BAD_REQUEST);
+        }
+
+        return ProdutoResource::make($produto);
+
     }
 }

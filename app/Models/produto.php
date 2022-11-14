@@ -24,21 +24,20 @@ class Produto extends Model
     {
         $query = Produto::query()
             ->when(isset($filtros['search']), function ($q) use ($filtros) {
-                $q->where('name', 'ilike', '%' . $filtros['search'] . '%')->orWhere('category', 'ilike', '%' . $filtros['search'] . '%');
+                $q->where('name', 'like', '%' . $filtros['search'] . '%')->orWhere('category', 'like', '%' . $filtros['search'] . '%');
             })
             ->when(isset($filtros['category']), function ($q) use ($filtros) {
                 $q->where('category', $filtros['category']);
             })
             ->when(isset($filtros['image_url']), function ($q) use ($filtros) {
-                if ($filtros['image_url']) {
-                    $q->whereNotNull('image_url');
+                if ($filtros['has_image'] == "true") {
+                    $q->whereNotNull('has_image');
                 } else {
-                    $q->whereNull('image_url');
+                    $q->whereNull('has_image');
                 }
-
             })
             ->when(isset($filtros['id']), function ($q) use ($filtros) {
-                $q->where('id', '=', $filtros['id']);
+                $q->where('id', $filtros['id']);
             })
             ->orderBy('name');
 
